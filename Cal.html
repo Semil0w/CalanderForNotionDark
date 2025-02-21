@@ -1,317 +1,225 @@
+<!DOCTYPE html>
 <html>
 <head>
-<style>
-@import url('https://fonts.googleapis.com/css?family=Nunito:400,600');
-:root {
-    --calendar-bg-color:#262829; /* Updated background color */
-    --calendar-font-color: #FFF;
-    --weekdays-border-bottom-color:#262829;;
-    --calendar-date-hover-color: #505050;
-    --calendar-current-date-color: #262829;;
-    --calendar-today-color: #2196F3;
-    --calendar-today-innerborder-color: #000;
-    --calendar-nextprev-bg-color:#262829;
-}
+    <title>Slime Pet</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: transparent;
+        }
+        
+        .slime {
+            width: 100px;
+            height: 80px;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .slime-body {
+            width: 100px;
+            height: 60px;
+            background: #333;
+            border-radius: 50px 50px 50px 50px;
+            position: absolute;
+            bottom: 0;
+        }
+        
+        .eye {
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 20px;
+            transition: all 0.3s;
+        }
+        
+        .eye.left {
+            left: 25px;
+        }
+        
+        .eye.right {
+            right: 25px;
+        }
 
-* {
-    padding: 0;
-    margin: 0;
-}
+        .sleeping .eye {
+            height: 2px;
+            top: 25px;
+            background: white;
+        }
 
-body {
-    background-color: #262829;
-}
+        .sleeping .eye::after {
+            content: "Z";
+            position: absolute;
+            color: white;
+            font-size: 20px;
+            top: -30px;
+            left: 5px;
+            opacity: 0;
+            animation: float-z 2s infinite;
+        }
 
-.calendar {
-    font-family: 'Nunito', sans-serif;
-    position: relative;
-    max-width: 300px; /* Reduced size */
-    min-width: 260px; /* Reduced size */
-    background: var(--calendar-bg-color);
-    color: var(--calendar-font-color);
-    margin: 10px auto; /* Reduced margin */
-    box-sizing: border-box;
-    overflow: hidden;
-    font-weight: normal;
-}
+        .shocked .eye {
+            height: 16px;
+            width: 16px;
+            top: 18px;
+        }
+        
+        .shadow {
+            width: 80px;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            position: absolute;
+            bottom: -10px;
+            left: 10px;
+        }
 
-.calendar-inner {
-    padding: 8px 8px; /* Reduced padding */
-}
+        .heart {
+            position: absolute;
+            font-size: 20px;
+            color: pink;
+            pointer-events: none;
+            animation: float-heart 1s forwards;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        @keyframes squish {
+            0%, 100% { transform: scaleY(1) scaleX(1); }
+            50% { transform: scaleY(0.8) scaleX(1.2); }
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-.calendar .calendar-inner .calendar-body {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    text-align: center;
-}
+        @keyframes float-z {
+            0% { transform: translate(0, 0); opacity: 0; }
+            25% { opacity: 1; }
+            100% { transform: translate(10px, -20px); opacity: 0; }
+        }
 
-.calendar .calendar-inner .calendar-body div {
-    padding: 3px; /* Reduced padding */
-    min-height: 25px; /* Reduced height */
-    line-height: 25px; /* Reduced line height */
-    border: 1px solid transparent;
-    margin: 5px 1px 0px; /* Reduced margin */
-}
+        @keyframes float-heart {
+            0% { transform: translate(0, 0); opacity: 1; }
+            100% { transform: translate(0, -30px); opacity: 0; }
+        }
 
-.calendar .calendar-inner .calendar-body div:nth-child(-n+7) {
-    border: 1px solid transparent;
-    border-bottom: 1px solid var(--weekdays-border-bottom-color);
-}
+        @keyframes shock {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        .dancing {
+            animation: bounce 0.5s ease-in-out 3;
+        }
+        
+        .dancing .slime-body {
+            animation: squish 0.5s ease-in-out 3;
+        }
+        
+        .dancing .eye {
+            animation: spin 0.5s linear 3;
+        }
 
-.calendar .calendar-inner .calendar-body div:nth-child(-n+7):hover {
-    border: 1px solid transparent;
-    border-bottom: 1px solid var(--weekdays-border-bottom-color);
-}
-
-.calendar .calendar-inner .calendar-body div>a {
-    color: var(--calendar-font-color);
-    text-decoration: none;
-    display: flex;
-    justify-content: center;
-}
-
-.calendar .calendar-inner .calendar-body div:hover {
-    border: 1px solid var(--calendar-date-hover-color);
-}
-
-.calendar .calendar-inner .calendar-body div.empty-dates:hover {
-    border: 1px solid transparent;
-}
-
-.calendar .calendar-inner .calendar-controls {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-}
-
-.calendar .calendar-inner .calendar-controls a {
-    color: var(--calendar-font-color);
-}
-
-.calendar .calendar-inner .calendar-today-date {
-    display: grid;
-    text-align: center;
-    cursor: pointer;
-    margin: 2px 0px; /* Reduced margin */
-    background: var(--calendar-current-date-color);
-    padding: 6px 0px; /* Reduced padding */
-}
-
-.calendar .calendar-inner .calendar-controls .calendar-year-month {
-    display: flex;
-    min-width: 80px; /* Reduced width */
-    justify-content: space-evenly;
-    align-items: center;
-}
-
-.calendar .calendar-inner .calendar-controls .calendar-next {
-    text-align: right;
-}
-
-.calendar .calendar-inner .calendar-controls .calendar-year-month .calendar-year-label,
-.calendar .calendar-inner .calendar-controls .calendar-year-month .calendar-month-label {
-    font-weight: bold;
-    font-size: 18px; /* Reduced font size */
-}
-
-.calendar .calendar-inner .calendar-body .calendar-today {
-    background: var(--calendar-today-color);
-}
-
-.calendar .calendar-inner .calendar-body .calendar-today:hover {
-    border: 1px solid transparent;
-}
-
-.calendar .calendar-inner .calendar-body .calendar-today a {
-    outline: 2px solid var(--calendar-today-innerborder-color);
-}
-
-.calendar .calendar-inner .calendar-controls .calendar-next a,
-.calendar .calendar-inner .calendar-controls .calendar-prev a {
-    font-family: consolas, sans-serif;
-    font-size: 22px; /* Reduced font size */
-    text-decoration: none;
-    padding: 3px 10px; /* Reduced padding */
-    display: inline-block;
-    background: var(--calendar-nextprev-bg-color);
-    margin: 0 0 8px 0; /* Reduced margin */
-}
-</style>
+        .shocked {
+            animation: shock 0.3s ease-in-out;
+        }
+    </style>
 </head>
 <body>
-<div class="calendar"></div>
-<script>
-// JavaScript remains the same as provided
-function CalendarControl() {
-  const calendar = new Date();
-  const calendarControl = {
-    localDate: new Date(),
-    calWeekDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-    calMonthName: [
-      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-    ],
-    daysInMonth: function(month, year) {
-      return new Date(year, month, 0).getDate();
-    },
-    firstDay: function() {
-      return new Date(calendar.getFullYear(), calendar.getMonth(), 1);
-    },
-    lastDay: function() {
-      return new Date(calendar.getFullYear(), calendar.getMonth() + 1, 0);
-    },
-    firstDayNumber: function() {
-      return calendarControl.firstDay().getDay() + 1;
-    },
-    lastDayNumber: function() {
-      return calendarControl.lastDay().getDay() + 1;
-    },
-    getPreviousMonthLastDate: function() {
-      let lastDate = new Date(
-        calendar.getFullYear(),
-        calendar.getMonth(),
-        0
-      ).getDate();
-      return lastDate;
-    },
-    navigateToPreviousMonth: function() {
-      calendar.setMonth(calendar.getMonth() - 1);
-      calendarControl.attachEventsOnNextPrev();
-    },
-    navigateToNextMonth: function() {
-      calendar.setMonth(calendar.getMonth() + 1);
-      calendarControl.attachEventsOnNextPrev();
-    },
-    navigateToCurrentMonth: function() {
-      let currentMonth = calendarControl.localDate.getMonth();
-      let currentYear = calendarControl.localDate.getFullYear();
-      calendar.setMonth(currentMonth);
-      calendar.setYear(currentYear);
-      calendarControl.attachEventsOnNextPrev();
-    },
-    displayYear: function() {
-      let yearLabel = document.querySelector(".calendar .calendar-year-label");
-      yearLabel.innerHTML = calendar.getFullYear();
-    },
-    displayMonth: function() {
-      let monthLabel = document.querySelector(
-        ".calendar .calendar-month-label"
-      );
-      monthLabel.innerHTML = calendarControl.calMonthName[calendar.getMonth()];
-    },
-    selectDate: function(e) {
-      console.log(
-        `${e.target.textContent} ${
-          calendarControl.calMonthName[calendar.getMonth()]
-        } ${calendar.getFullYear()}`
-      );
-    },
-    plotSelectors: function() {
-      document.querySelector(
-        ".calendar"
-      ).innerHTML += `<div class="calendar-inner"><div class="calendar-controls">
-      <div class="calendar-prev"><a href="#"><</a></div>
-      <div class="calendar-year-month">
-      <div class="calendar-month-label"></div>
-      <div>-</div>
-      <div class="calendar-year-label"></div>
-      </div>
-      <div class="calendar-next"><a href="#">></a></div>
-      </div>
-      <div class="calendar-today-date">Today: 
-        ${calendarControl.calWeekDays[calendarControl.localDate.getDay()]}, 
-        ${calendarControl.localDate.getDate()}, 
-        ${calendarControl.calMonthName[calendarControl.localDate.getMonth()]} 
-        ${calendarControl.localDate.getFullYear()}
-      </div>
-      <div class="calendar-body"></div></div>`;
-    },
-    plotDayNames: function() {
-      for (let i = 0; i < calendarControl.calWeekDays.length; i++) {
-        document.querySelector(".calendar .calendar-body").innerHTML += `<div>${
-          calendarControl.calWeekDays[i]
-        }</div>`;
-      }
-    },
-    plotDates: function() {
-      document.querySelector(".calendar .calendar-body").innerHTML = "";
-      calendarControl.plotDayNames();
-      calendarControl.displayMonth();
-      calendarControl.displayYear();
-      let count = 1;
-      let prevDateCount = 0;
-      let calendarDays = calendarControl.daysInMonth(
-        calendar.getMonth() + 1,
-        calendar.getFullYear()
-      );
+    <div class="slime" id="slime">
+        <div class="slime-body">
+            <div class="eye left"></div>
+            <div class="eye right"></div>
+        </div>
+        <div class="shadow"></div>
+    </div>
 
-      for (let i = 1; i < calendarDays; i++) {
-        if (i < calendarControl.firstDayNumber()) {
-          prevDateCount += 1;
-          document.querySelector(
-            ".calendar .calendar-body"
-          ).innerHTML += `<div class="empty-dates"></div>`;
-        } else {
-          let currentMonth = calendarControl.localDate.getMonth() + 1;
-          let changedMonth = calendar.getMonth() + 1;
-          let currentYear = calendarControl.localDate.getFullYear();
-          let changedYear = calendar.getFullYear();
-          if (
-            currentYear === changedYear &&
-            currentMonth === changedMonth &&
-            count === calendar.getDate()
-          ) {
-            document.querySelector(
-              ".calendar .calendar-body"
-            ).innerHTML += `<div class="calendar-today"><a class="dateNumber" href="#">${count++}</a></div>`;
-          } else
-            document.querySelector(
-              ".calendar .calendar-body"
-            ).innerHTML += `<div><a class="dateNumber" href="#">${count++}</a></div>`;
+    <script>
+        const slime = document.getElementById('slime');
+        let isAnimating = false;
+        let isSleeping = false;
+        let sleepTimeout;
+
+        function resetSleepTimer() {
+            clearTimeout(sleepTimeout);
+            sleepTimeout = setTimeout(() => {
+                if (!isAnimating) {
+                    goToSleep();
+                }
+            }, 30000); // 30 seconds
         }
-      }
 
-      for (let j = 0; j < prevDateCount + 1; j++) {
-        document.querySelector(
-          ".calendar .calendar-body"
-        ).innerHTML += `<div><a class="dateNumber" href="#">${count++}</a></div>`;
-      }
-    },
-    attachEvents: function() {
-      let prevBtn = document.querySelector(".calendar .calendar-prev a");
-      let nextBtn = document.querySelector(".calendar .calendar-next a");
-      let todayDate = document.querySelector(".calendar .calendar-today-date");
-      let dateNumber = document.querySelectorAll(".calendar .dateNumber");
-      prevBtn.addEventListener(
-        "click",
-        calendarControl.navigateToPreviousMonth
-      );
-      nextBtn.addEventListener("click", calendarControl.navigateToNextMonth);
-      todayDate.addEventListener(
-        "click",
-        calendarControl.navigateToCurrentMonth
-      );
-      for (var i = 0; i < dateNumber.length; i++) {
-        dateNumber[i].addEventListener(
-          "click",
-          calendarControl.selectDate,
-          false
-        );
-      }
-    },
-    attachEventsOnNextPrev: function() {
-      calendarControl.plotDates();
-      calendarControl.attachEvents();
-    },
-    init: function() {
-      calendarControl.plotSelectors();
-      calendarControl.plotDates();
-      calendarControl.attachEvents();
-    }
-  };
-  calendarControl.init();
-}
+        function goToSleep() {
+            isSleeping = true;
+            slime.classList.add('sleeping');
+        }
 
-const calendarControl = new CalendarControl();
-</script>
+        function wakeUp() {
+            isSleeping = false;
+            slime.classList.remove('sleeping');
+            resetSleepTimer();
+        }
+
+        function createHeart(x, y) {
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.textContent = '♥';
+            heart.style.left = x + 'px';
+            heart.style.top = y + 'px';
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 1000);
+        }
+
+        slime.addEventListener('click', (e) => {
+            if (isSleeping) {
+                // Shocked wake up
+                wakeUp();
+                slime.classList.add('shocked');
+                setTimeout(() => {
+                    slime.classList.remove('shocked');
+                    if (!isAnimating) {
+                        isAnimating = true;
+                        slime.classList.add('dancing');
+                        setTimeout(() => {
+                            slime.classList.remove('dancing');
+                            isAnimating = false;
+                        }, 1500);
+                    }
+                }, 300);
+            } else if (!isAnimating) {
+                // Normal interaction with hearts
+                isAnimating = true;
+                slime.classList.add('dancing');
+                // Create 3 hearts at random positions around the click
+                for (let i = 0; i < 3; i++) {
+                    const offsetX = Math.random() * 40 - 20;
+                    const offsetY = Math.random() * 40 - 20;
+                    createHeart(e.pageX + offsetX, e.pageY + offsetY);
+                }
+                
+                setTimeout(() => {
+                    slime.classList.remove('dancing');
+                    isAnimating = false;
+                }, 1500);
+            }
+        });
+
+        // Start the initial sleep timer
+        resetSleepTimer();
+
+        // Reset sleep timer on any interaction
+        slime.addEventListener('mouseover', resetSleepTimer);
+    </script>
 </body>
 </html>
